@@ -1,0 +1,7 @@
+ml-collections
+python=3.10
+scikit-learn
+termcolor
+torch
+torch-geometric
+tqdm
