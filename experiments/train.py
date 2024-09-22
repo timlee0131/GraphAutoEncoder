@@ -170,8 +170,8 @@ def linear_classifier(config, model, data):
     avg_acc = colored(accuracy / config.runs, "green", attrs=["bold"])
     print("linear classifier accuracy (with GAE pretraining): ", avg_acc)
     
-def driver():
-    config = get_config("experiments/configs/cora.py")
+def driver(dataset_name):
+    config = get_config(f"experiments/configs/{dataset_name}.py")
     
     data = get_dataset(config)
     model = train(config, data)
