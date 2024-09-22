@@ -6,5 +6,5 @@ def mse_loss(target, out):
 
 def sce_loss(target, out):
     cosine_similarity = F.cosine_similarity(target, out, dim=-1)
-    loss = 1 - cosine_similarity
-    return loss.mean()
+    loss = 1 - cosine_similarity.mean()
+    return loss

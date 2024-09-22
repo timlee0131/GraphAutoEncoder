@@ -1,4 +1,4 @@
-from models.EncodersDecoders import GCN_Encoder, GCN_Decoder, GAT_Encoder, GAT_Decoder
+from models.EncodersDecoders import *
 from models.VanillaGAE import VanillaGAE
 from models.utils import sce_loss, mse_loss
 from models.linear_classifier import LogisticRegression
@@ -58,7 +58,7 @@ def train(config, data):
     loss = mse_loss if config.loss_fn == 'mse' else sce_loss
     model = None
     if config.model_type == 'GCN':
-        model = VanillaGAE(GCN_Encoder, GCN_Decoder, loss, config.num_node_features, config.hidden_channels)
+        model = VanillaGAE(GCN_Encoder, GCN_Decoder, loss, config.num_node_features, config.hidden_channels, ip=True)
     elif config.model_type == 'GAT':
         model = VanillaGAE(GAT_Encoder, GAT_Decoder, loss, config.num_node_features, config.hidden_channels)
     
@@ -74,7 +74,7 @@ def train(config, data):
         out = model(data.x, data.edge_index)
         loss = criterion(data.x, out)
         
-        if epoch % 20 == 0:
+        if epoch % 50 == 0:
             print(loss)
         
         loss.backward()
@@ -92,7 +92,7 @@ def benchmark_logreg(config, data):
         benchmark_classifier = LogisticRegression(config.num_node_features, config.num_classes)
 
         criterion = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(benchmark_classifier.parameters(), lr=0.01)
+        optimizer = torch.optim.Adam(benchmark_classifier.parameters(), lr=config.eval_lr)
 
         # Training the benchmark_classifier
         num_epochs = config.eval_epochs
@@ -120,7 +120,7 @@ def benchmark_logreg(config, data):
             accuracy += accuracy_score(y_test.numpy(), pred.numpy())
             # print(f'Test Accuracy: {accuracy:.4f}')
     
-    avg_acc = colored(accuracy / config.runs, "green", attrs=["bold"])
+    avg_acc = colored(round(accuracy / config.runs, 3), "green", attrs=["bold"])
     print("benchmark linear classifier accuracy: ", avg_acc)
 
 def linear_classifier(config, model, data):
@@ -139,7 +139,7 @@ def linear_classifier(config, model, data):
         classifier = LogisticRegression(Z.shape[1], config.num_classes)
 
         criterion = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(classifier.parameters(), lr=0.01)
+        optimizer = torch.optim.Adam(classifier.parameters(), lr=config.eval_lr)
 
         # Training the classifier
         num_epochs = config.eval_epochs
@@ -167,7 +167,7 @@ def linear_classifier(config, model, data):
             accuracy += accuracy_score(y_test.numpy(), pred.numpy())
             # print(f'Test Accuracy: {accuracy:.4f}')
 
-    avg_acc = colored(accuracy / config.runs, "green", attrs=["bold"])
+    avg_acc = colored(round(accuracy / config.runs, 3), "green", attrs=["bold"])
     print("linear classifier accuracy (with GAE pretraining): ", avg_acc)
     
 def driver(dataset_name):

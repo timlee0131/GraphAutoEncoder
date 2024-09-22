@@ -1,11 +1,12 @@
 import torch.nn as nn
 
 class VanillaGAE(nn.Module):
-    def __init__(self, encoder, decoder, loss, n_dim, n_latent) -> None:
+    def __init__(self, encoder, decoder, loss, n_dim, n_latent, ip=False) -> None:
         super(VanillaGAE, self).__init__()
         self.encoder = encoder(n_dim, n_latent)
         self.decoder = decoder(n_latent, n_dim)
         self.loss = loss
+        self.ip = ip
     
     def forward(self, x, edge_index):
         z = self.encoder(x, edge_index)
